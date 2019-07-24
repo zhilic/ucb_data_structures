@@ -1,0 +1,2 @@
+# Ignore the output class files from InteliJ
+**/out/
