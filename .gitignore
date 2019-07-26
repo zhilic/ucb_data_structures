@@ -1,8 +1,9 @@
+# Ignore all complied .class files
+*.class
+
 # Ignore the output class files from InteliJ
 **/out/
 
-
+# Ignore the personal IDE configuration files from InteliJ
 **/.idea/
 
-# Ignore all complied .class files
-**.class
