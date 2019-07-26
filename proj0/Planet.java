@@ -8,7 +8,7 @@ public class Planet {
 	public double yyVel;  // current velocity in the y direction, m
 	public double mass;   // mass, kg
 	public String imgFileName;
-	static final double G = 6.67e-11;   // the gravity constance, N*m^2/kg^2
+	private static final double G = 6.67e-11;   // the gravity constance, N*m^2/kg^2
 
 	public Planet(double xP, double yP, double xV, double yV, double m, String img) {
 		xxPos = xP;

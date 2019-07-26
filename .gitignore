@@ -4,5 +4,5 @@
 
 **/.idea/
 
-# Ignore all .class files
-*.class
+# Ignore all complied .class files
+**.class
