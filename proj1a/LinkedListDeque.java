@@ -3,7 +3,7 @@ public class LinkedListDeque<T> {
     private int size;
     private LinkedNode sentinel;
 
-    public class LinkedNode {
+    private class LinkedNode {
 
         private T item;
         private LinkedNode previous;
@@ -25,7 +25,7 @@ public class LinkedListDeque<T> {
     }
 
 
-    /* add and remove operations must not involve any looping or recursion.
+    /* add and remove must not involve any looping or recursion.
        A single such operation must take "constant time". */
     public void addFirst(T item) {
         LinkedNode oldFirst = sentinel.next;
@@ -56,12 +56,15 @@ public class LinkedListDeque<T> {
     }
 
     public void printDeque() {
-        for (int index = 0; index < size; index ++) {
+        for (int index = 0; index < size; index++) {
             System.out.print(get(index).toString() + " ");
         }
     }
 
     public T removeFirst() {
+        if (size == 0) {
+            return null;
+        }
         LinkedNode first = sentinel.next;
         sentinel.next = first.next;
         first.next.previous = sentinel;
@@ -70,6 +73,9 @@ public class LinkedListDeque<T> {
     }
 
     public T removeLast() {
+        if (size == 0) {
+            return null;
+        }
         LinkedNode last = sentinel.previous;
         sentinel.previous = last.previous;
         last.previous.next = sentinel;
@@ -79,6 +85,9 @@ public class LinkedListDeque<T> {
 
     /* get must use iteration, not recursion */
     public T get(int index) {
+        if (index >= size || size == 0) {
+            return null;
+        }
         LinkedNode curr = sentinel;
         for (int i = 0; i <= index; i++) {
             curr = curr.next;

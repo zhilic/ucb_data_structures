@@ -19,10 +19,11 @@ public class ArrayDeque<T> {
      * 3. The last item in the list is always in position size - 1.
      */
 
-    public void resize(int cap) {
+    private void resize(int cap) {
         T[] tmp = (T[]) new Object[cap];
+        /* start filling the new array from index 0 */
         if (nextFirst < nextLast || nextLast == 0) {
-            System.arraycopy(items, nextFirst + 1, tmp, cap / 4, size);
+            System.arraycopy(items, nextFirst + 1, tmp, 0, size);
         } else {
             /* nextFirst >= nextLast ==> circular array
             *  first copy from nextFirst+1 to items.length-1  ==> partial size: size-nextLast
@@ -32,11 +33,11 @@ public class ArrayDeque<T> {
             *  size of first half = 3 (size - nextLast)
             *  size of second half = 2 (nextLast)
             */
-            System.arraycopy(items, nextFirst + 1, tmp, cap / 4, size - nextLast);
-            System.arraycopy(items, 0, tmp, cap / 4 + size - nextLast, nextLast);
+            System.arraycopy(items, nextFirst + 1, tmp, 0, size - nextLast);
+            System.arraycopy(items, 0, tmp, size - nextLast, nextLast);
         }
-        nextFirst = cap / 4 - 1;
-        nextLast = cap / 4 + size;
+        nextFirst = 1;
+        nextLast = size;
         items = tmp;
     }
 
@@ -86,7 +87,9 @@ public class ArrayDeque<T> {
     }
 
     public T removeFirst() {
-        if (nextFirst == items.length - 1) {
+        if (size == 0) {
+            return null;
+        } else if (nextFirst == items.length - 1) {
             T first = items[0];
             nextFirst = 0;
             size -= 1;
@@ -100,7 +103,9 @@ public class ArrayDeque<T> {
     }
 
     public T removeLast() {
-        if (nextLast == 0) {
+        if (size == 0) {
+            return null;
+        } else if (nextLast == 0) {
             T last = items[items.length - 1];
             nextLast = items.length - 1;
             size -= 1;
