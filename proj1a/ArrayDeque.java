@@ -22,10 +22,15 @@ public class ArrayDeque<T> {
     private void resize(int cap) {
         T[] tmp = (T[]) new Object[cap];
         /* start filling the new array from index 0 */
-        if (nextFirst < nextLast || nextLast == 0) {
-            System.arraycopy(items, nextFirst + 1, tmp, 0, size);
+        /*
+         * When resize is called, the original array must be full,
+         * which means nextFirst = nextLast - 1 (/w circle)
+         * or nextFirst = items.length - 1 && nextLast = 0 (/wo circle)
+         */
+        if (nextLast == 0 && nextFirst == items.length - 1) {
+            System.arraycopy(items, 0, tmp, 0, size);
         } else {
-            /* nextFirst >= nextLast ==> circular array
+            /* nextFirst = nextLast - 1 ==> circular array
             *  first copy from nextFirst+1 to items.length-1  ==> partial size: size-nextLast
             *  then copy from 0 to nextLast-1 ==> partial size: nextLast
             *  Example: [4,5,null,null,null,1,2,3]
@@ -36,7 +41,7 @@ public class ArrayDeque<T> {
             System.arraycopy(items, nextFirst + 1, tmp, 0, size - nextLast);
             System.arraycopy(items, 0, tmp, size - nextLast, nextLast);
         }
-        nextFirst = 1;
+        nextFirst = tmp.length;
         nextLast = size;
         items = tmp;
     }
@@ -120,12 +125,20 @@ public class ArrayDeque<T> {
 
     /* get and size must take constant time */
     public T get(int index) {
-        if (index < items.length - nextFirst - 1) {
-            // don't need to go to the beginning of items
+        if (index >= size || size == 0) {
+            return null;
+        } else if (nextFirst == items.length) {
+            /* the beginning of the deque is at items index 0 */
+            return items[index];
+        } else if (index < items.length - nextFirst - 1) {
+            /* index is located between [nextFirst + 1, items.length - 1]
+            *  i.e. nextFirst = 1, items.length = 8 ==>
+            *  the first 6 items of the deque are listed in the latter part of the array
+            */
             return items[nextFirst + 1 + index];
         } else {
-            // size of first part (tmp) = items.length - nextFirst - 1
-            // index of first part: [0, tmp - 1]
+            /* size of first part (tmp) = items.length - nextFirst - 1
+            * index of first part: [0, tmp - 1]  */
             return items[index - (items.length - nextFirst - 1)];
         }
     }
