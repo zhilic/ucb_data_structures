@@ -21,16 +21,23 @@ public class ArrayDeque<T> {
 
     private void resize(int cap) {
         T[] tmp = (T[]) new Object[cap];
+
         /* start filling the new array from index 0 */
-        /*
-         * When resize is called, the original array must be full,
-         * which means nextFirst = nextLast - 1 (/w circle)
-         * or nextFirst = items.length - 1 && nextLast = 0 (/wo circle)
-         */
-        if (nextLast == 0 && nextFirst == items.length - 1) {
+        if ((nextFirst < nextLast && size < items.length) ||
+                (nextLast == 0 && nextFirst < items.length - 1)) {
+            /* Non-circular array
+            *  1. deque lies in the middle of an array
+            *  2. deque lies at the end of the an array
+            */
+            System.arraycopy(items, nextFirst + 1, tmp, 0, size);
+        } else if (nextFirst == items.length - 1) {
+             /* Non-circular array
+             *  3. deque lies at the beginning of an array
+             */
             System.arraycopy(items, 0, tmp, 0, size);
-        } else {
-            /* nextFirst = nextLast - 1 ==> circular array
+        }
+        else {
+            /* circular array
             *  first copy from nextFirst+1 to items.length-1  ==> partial size: size-nextLast
             *  then copy from 0 to nextLast-1 ==> partial size: nextLast
             *  Example: [4,5,null,null,null,1,2,3]
@@ -94,7 +101,12 @@ public class ArrayDeque<T> {
     public T removeFirst() {
         if (size == 0) {
             return null;
-        } else if (nextFirst == items.length - 1) {
+        }
+        if (items.length >= 16 && (float) (size - 1) / items.length < 0.25) {
+            /* Array usage after removing item is below 25% */
+            resize(items.length / 2);
+        }
+        if (nextFirst == items.length - 1) {
             T first = items[0];
             nextFirst = 0;
             size -= 1;
@@ -110,7 +122,12 @@ public class ArrayDeque<T> {
     public T removeLast() {
         if (size == 0) {
             return null;
-        } else if (nextLast == 0) {
+        }
+        if (items.length >= 16 && (float) (size - 1) / items.length < 0.25) {
+            /* Array usage after removing item is below 25% */
+            resize(items.length / 2);
+        }
+        if (nextLast == 0) {
             T last = items[items.length - 1];
             nextLast = items.length - 1;
             size -= 1;
