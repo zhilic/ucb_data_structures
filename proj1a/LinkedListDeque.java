@@ -1,0 +1,91 @@
+public class LinkedListDeque<T> {
+
+    private int size;
+    private LinkedNode sentinel;
+
+    public class LinkedNode {
+
+        public T item;
+        public LinkedNode previous;
+        public LinkedNode next;
+
+        public LinkedNode(T t, LinkedNode p, LinkedNode n) {
+            item = t;
+            previous = p;
+            next = n;
+        }
+
+    }
+
+    public LinkedListDeque() {
+        sentinel = new LinkedNode(null, null, null);
+        sentinel.previous = sentinel;
+        sentinel.next = sentinel;
+        size = 0;
+    }
+
+
+    /* add and remove operations must not involve any looping or recursion.
+       A single such operation must take "constant time". */
+    public void addFirst(T item) {
+        LinkedNode oldFirst = sentinel.next;
+        LinkedNode newFirst = new LinkedNode(item, sentinel, oldFirst);
+        sentinel.next = newFirst;
+        oldFirst.previous = newFirst;
+        size += 1;
+    }
+
+    public void addLast(T item) {
+        LinkedNode oldLast = sentinel.previous;
+        LinkedNode newLast = new LinkedNode(item, oldLast, sentinel);
+        sentinel.previous = newLast;
+        oldLast.next = newLast;
+        size += 1;
+    }
+
+    public boolean isEmpty() {
+        if (sentinel.next == sentinel) {
+            return true;
+        }
+        return false;
+    }
+
+    /* size must take constant time. */
+    public int size() {
+        return this.size;
+    }
+
+    public void printDeque() {
+        LinkedNode curr = sentinel;
+        for (int i = 0; i < size; i++) {
+            curr = curr.next;
+            System.out.print(curr.item + " ");
+        }
+    }
+
+    public T removeFirst() {
+        LinkedNode first = sentinel.next;
+        sentinel.next = first.next;
+        first.next.previous = sentinel;
+        size -= 1;
+        return first.item;
+    }
+
+    public T removeLast() {
+        LinkedNode last = sentinel.previous;
+        sentinel.previous = last.previous;
+        last.previous.next = sentinel;
+        size -= 1;
+        return last.item;
+    }
+
+    /* get must use iteration, not recursion */
+    public T get(int index) {
+        LinkedNode curr = sentinel;
+        for (int i = 0; i <= index; i++) {
+            curr = curr.next;
+        }
+        return curr.item;
+    }
+
+}
