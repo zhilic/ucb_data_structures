@@ -22,7 +22,7 @@ public class ArrayDeque<T> {
     public void resize(int cap) {
         T[] tmp = (T[]) new Object[cap];
         if (nextFirst < nextLast || nextLast == 0) {
-            System.arraycopy(items, nextFirst+1, tmp, cap / 4, size);
+            System.arraycopy(items, nextFirst + 1, tmp, cap / 4, size);
         } else {
             /* nextFirst >= nextLast ==> circular array
             *  first copy from nextFirst+1 to items.length-1  ==> partial size: size-nextLast
@@ -32,7 +32,7 @@ public class ArrayDeque<T> {
             *  size of first half = 3 (size - nextLast)
             *  size of second half = 2 (nextLast)
             */
-            System.arraycopy(items, nextFirst+1, tmp, cap / 4, size - nextLast);
+            System.arraycopy(items, nextFirst + 1, tmp, cap / 4, size - nextLast);
             System.arraycopy(items, 0, tmp, cap / 4 + size - nextLast, nextLast);
         }
         nextFirst = cap / 4 - 1;
@@ -80,8 +80,8 @@ public class ArrayDeque<T> {
     }
 
     public void printDeque() {
-        for (int index = 0; index < size; index ++) {
-            System.out.print(get(index) + " ");
+        for (int index = 0; index < size; index++) {
+            System.out.print(get(index).toString() + " ");
         }
     }
 

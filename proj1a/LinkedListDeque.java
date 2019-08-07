@@ -5,9 +5,9 @@ public class LinkedListDeque<T> {
 
     public class LinkedNode {
 
-        public T item;
-        public LinkedNode previous;
-        public LinkedNode next;
+        private T item;
+        private LinkedNode previous;
+        private LinkedNode next;
 
         public LinkedNode(T t, LinkedNode p, LinkedNode n) {
             item = t;
@@ -56,10 +56,8 @@ public class LinkedListDeque<T> {
     }
 
     public void printDeque() {
-        LinkedNode curr = sentinel;
-        for (int i = 0; i < size; i++) {
-            curr = curr.next;
-            System.out.print(curr.item + " ");
+        for (int index = 0; index < size; index ++) {
+            System.out.print(get(index).toString() + " ");
         }
     }
 
@@ -86,6 +84,21 @@ public class LinkedListDeque<T> {
             curr = curr.next;
         }
         return curr.item;
+    }
+
+    public T getRecursive(int index) {
+        if (index >= size || size == 0) {
+            return null;
+        }
+        return getRecursiveHelper(sentinel.next, index);
+    }
+
+    /* helper method for getRecursive */
+    private T getRecursiveHelper(LinkedNode n, int index) {
+        if (index == 0) {
+            return n.item;
+        }
+        return getRecursiveHelper(n.next, index - 1);
     }
 
 }
