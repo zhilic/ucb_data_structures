@@ -29,7 +29,7 @@ public class Palindrome {
         return deque.removeFirst() == deque.removeLast() && isPalindromeDeque(deque);
     }
 
-    public boolean isPalindromeDeque(Deque deque, CharacterComparator cc) {
+    private boolean isPalindromeDeque(Deque deque, CharacterComparator cc) {
         if (deque.size() == 0 || deque.size() == 1) {
             return true;
         }
