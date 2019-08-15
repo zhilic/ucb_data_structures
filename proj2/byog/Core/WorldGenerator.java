@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class WorldGenerator {
 
-    private static int WIDTH;
+    private int WIDTH;
     private static int HEIGHT;
     private static long SEED;
     private static Random RANDOM;
@@ -256,7 +256,8 @@ public class WorldGenerator {
      *    (special rectangels with width=1 or heigh=1).
      * 7. If the border tile is filled with NOTHING, fill it with WALL.
      */
-    public void drawWorld(TETile[][] world) {
+    public TETile[][] drawWorld() {
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
         /** fill in Tileset.NOTHING in every tile of the world */
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
@@ -312,6 +313,8 @@ public class WorldGenerator {
             ArrayList<Position> borders = rect.getBorders();
             for (Position p : borders) {
                 if (world[p.x][p.y] == Tileset.NOTHING) {
+                    /** has to fill in the original WALL to easily generate a random door later */
+//                    world[p.x][p.y] = TETile.colorVariant(Tileset.WALL, 30, 30, 30, RANDOM);
                     world[p.x][p.y] = Tileset.WALL;
                 }
             }
@@ -327,6 +330,17 @@ public class WorldGenerator {
 //            System.out.println("door: " + door);
         }
         world[door.x][door.y] = Tileset.LOCKED_DOOR;
+
+        /** Recolor walls (optional) */
+        for (Rectangle rect : hallways) {
+            ArrayList<Position> borders = rect.getBorders();
+            for (Position p : borders) {
+                if (world[p.x][p.y] == Tileset.WALL) {
+                    world[p.x][p.y] = TETile.colorVariant(Tileset.WALL, 30, 30, 30, RANDOM);
+                }
+            }
+        }
+        return world;
     }
 
     /** Check if the 4 surrounding tiles of a tile has NOTHING filled. */
@@ -346,15 +360,12 @@ public class WorldGenerator {
         return false;
     }
 
-
     public static void main(String[] args) {
-        WorldGenerator generator = new WorldGenerator(80, 45, 20170802);
+        WorldGenerator generator = new WorldGenerator(80, 30, 20170802);
         TERenderer ter = new TERenderer();
-        ter.initialize(WIDTH, HEIGHT);
-        TETile[][] world = new TETile[WIDTH][HEIGHT];
-        generator.drawWorld(world);
+        ter.initialize(generator.WIDTH, generator.HEIGHT);
+        TETile[][] world = generator.drawWorld();
         ter.renderFrame(world);
-
     }
 
 }
