@@ -81,7 +81,7 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
         return new RingIterator();
     }
 
-    public class RingIterator implements Iterator {
+    private class RingIterator implements Iterator {
         private int wizardPosition;
 
         public RingIterator() {
