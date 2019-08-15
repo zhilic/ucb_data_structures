@@ -258,7 +258,6 @@ public class WorldGenerator {
      */
     public TETile[][] drawWorld() {
         TETile[][] world = new TETile[WIDTH][HEIGHT];
-        /** fill in Tileset.NOTHING in every tile of the world */
         for (int x = 0; x < WIDTH; x += 1) {
             for (int y = 0; y < HEIGHT; y += 1) {
                 world[x][y] = Tileset.NOTHING;
@@ -281,14 +280,11 @@ public class WorldGenerator {
             }
         }
 //        System.out.println(rects);
-        for (int ii = 0; ii < rects.size(); ii++) {
-            world = rects.get(ii).drawRectangle(world);
-        }
 
         /**
          * Randomly generate hallways to connect rectangles.
          * The first for loop ensures that each rectangle is connected to at least one rectangle.
-         * */
+         */
         Collections.sort(rects);
         ArrayList<Rectangle> hallways = new ArrayList<>();
         for (int ii = 0; ii < rects.size() - 1; ii++) {
@@ -297,19 +293,16 @@ public class WorldGenerator {
             hallways.addAll(h);
         }
 //        for (int ii = 0; ii < rects.size() - 2; ii += 2) {
-//            /** Connect each rectangle with the rectangle on the second right of it */
 //            Position[] connects = connectRectangles(rects.get(ii), rects.get(ii + 2));
 //            ArrayList<Rectangle> h = generateHallways(connects[0], connects[1]);
 //            hallways.addAll(h);
 //        }
 //        System.out.println(hallways);
-        for (int ii = 0; ii < hallways.size(); ii++) {
-            world = hallways.get(ii).drawRectangle(world);
-        }
 
-        /** fill in walls at the borders of each room and hallway */
         hallways.addAll(rects);
+        /** fill in FLOORs in all rectangles and hallways and WALLs on all borders. */
         for (Rectangle rect : hallways) {
+            world = rect.drawRectangle(world);
             ArrayList<Position> borders = rect.getBorders();
             for (Position p : borders) {
                 if (world[p.x][p.y] == Tileset.NOTHING) {
