@@ -244,6 +244,53 @@ public class WorldGenerator {
         return connects;
     }
 
+    public TETile[][] initializeWorld() {
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                world[x][y] = Tileset.NOTHING;
+            }
+        }
+        return world;
+    }
+
+    /** Randomly select a tile on the borders of rectangles for locked door. */
+    public Position generateDoor(TETile[][] world, ArrayList<Rectangle> rects) {
+        Position door = new Position(0, 0);
+        ArrayList<Position> openSpace = getSurrounding(world, door, Tileset.NOTHING);
+        while (world[door.x][door.y] != Tileset.WALL || openSpace.size() == 0) {
+            Rectangle rectDoor = rects.get(RandomUtils.uniform(RANDOM, rects.size()));
+            ArrayList<Position> bordersDoor = rectDoor.getBordersWoConers();
+            door = bordersDoor.get(RandomUtils.uniform(RANDOM, bordersDoor.size()));
+            openSpace = getSurrounding(world, door, Tileset.NOTHING);
+//            System.out.println("door: " + door);
+        }
+        return door;
+    }
+
+    /** Randomly select a FLOOR tile as the starting point of player. */
+    public Position generatePlayer(TETile[][] world, ArrayList<Rectangle> rects) {
+        Position player = new Position(0, 0);
+        while (world[player.x][player.y] != Tileset.FLOOR) {
+            player = new Position(RandomUtils.uniform(RANDOM, WIDTH),
+                                  RandomUtils.uniform(RANDOM, HEIGHT));
+        }
+        return player;
+    }
+
+    /** Recolor walls (optional) */
+    public TETile[][] recolorWalls(TETile[][] world, ArrayList<Rectangle> hallways) {
+        for (Rectangle rect : hallways) {
+            ArrayList<Position> borders = rect.getBorders();
+            for (Position p : borders) {
+                if (world[p.x][p.y] == Tileset.WALL) {
+                    world[p.x][p.y] = TETile.colorVariant(Tileset.WALL, 30, 30, 30, RANDOM);
+                }
+            }
+        }
+        return world;
+    }
+
 
     /**
      * 1. Generate a random integer n ==> Number of rectangles in this world.
@@ -257,12 +304,7 @@ public class WorldGenerator {
      * 7. If the border tile is filled with NOTHING, fill it with WALL.
      */
     public TETile[][] drawWorld() {
-        TETile[][] world = new TETile[WIDTH][HEIGHT];
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
-                world[x][y] = Tileset.NOTHING;
-            }
-        }
+        TETile[][] world = initializeWorld();
         /** Decide the random number of rectangles */
         int n = RandomUtils.uniform(RANDOM, 12, 17);
 
@@ -282,8 +324,9 @@ public class WorldGenerator {
 //        System.out.println(rects);
 
         /**
-         * Randomly generate hallways to connect rectangles.
-         * The first for loop ensures that each rectangle is connected to at least one rectangle.
+         * Sort all rectangles based on its distance to the Position(0,0) so that the two connected
+         * rectangles are not too far away. Randomly generate hallways to connect rectangles.
+         * The for-loop ensures that each rectangle is connected to at least one rectangle.
          */
         Collections.sort(rects);
         ArrayList<Rectangle> hallways = new ArrayList<>();
@@ -292,12 +335,6 @@ public class WorldGenerator {
             ArrayList<Rectangle> h = generateHallways(connects[0], connects[1]);
             hallways.addAll(h);
         }
-//        for (int ii = 0; ii < rects.size() - 2; ii += 2) {
-//            Position[] connects = connectRectangles(rects.get(ii), rects.get(ii + 2));
-//            ArrayList<Rectangle> h = generateHallways(connects[0], connects[1]);
-//            hallways.addAll(h);
-//        }
-//        System.out.println(hallways);
 
         hallways.addAll(rects);
         /** fill in FLOORs in all rectangles and hallways and WALLs on all borders. */
@@ -313,49 +350,38 @@ public class WorldGenerator {
             }
         }
 
-        /** Randomly select a tile on the borders of rectangles for locked door */
-        Position door = new Position(0, 0);
-
-        while (world[door.x][door.y] != Tileset.WALL || !open(world, door)) {
-            Rectangle rectDoor = rects.get(RandomUtils.uniform(RANDOM, rects.size()));
-            ArrayList<Position> bordersDoor = rectDoor.getBordersWoConers();
-            door = bordersDoor.get(RandomUtils.uniform(RANDOM, bordersDoor.size()));
-//            System.out.println("door: " + door);
-        }
+        Position door = generateDoor(world, rects);
         world[door.x][door.y] = Tileset.LOCKED_DOOR;
+        Position player = generatePlayer(world, hallways); // ArrayList hallways include both rooms and hallways
+        world[player.x][player.y] = Tileset.PLAYER;
+        world = recolorWalls(world, hallways);
 
-        /** Recolor walls (optional) */
-        for (Rectangle rect : hallways) {
-            ArrayList<Position> borders = rect.getBorders();
-            for (Position p : borders) {
-                if (world[p.x][p.y] == Tileset.WALL) {
-                    world[p.x][p.y] = TETile.colorVariant(Tileset.WALL, 30, 30, 30, RANDOM);
-                }
-            }
-        }
         return world;
     }
 
-    /** Check if the 4 surrounding tiles of a tile has NOTHING filled. */
-    public boolean open(TETile[][] world, Position p) {
-        if (p.x > 0 && world[p.x - 1][p.y] == Tileset.NOTHING) {
-            return true;
+    /** Get the 4 surrounding tiles of a tile if the surrounding tile is a specific tile. */
+    public ArrayList<Position> getSurrounding(TETile[][] world, Position p, TETile tile) {
+        ArrayList<Position> surrounding = new ArrayList<>();
+        if (p.x > 0 && world[p.x - 1][p.y] == tile) {
+            surrounding.add(new Position(p.x - 1, p.y));
         }
-        if (p.x < WIDTH - 1 && world[p.x + 1][p.y] == Tileset.NOTHING) {
-            return true;
+        if (p.x < WIDTH - 1 && world[p.x + 1][p.y] == tile) {
+            surrounding.add(new Position(p.x + 1, p.y));
         }
-        if (p.y > 0 && world[p.x][p.y - 1] == Tileset.NOTHING) {
-            return true;
+        if (p.y > 0 && world[p.x][p.y - 1] == tile) {
+            surrounding.add(new Position(p.x, p.y - 1));
         }
-        if (p.y < HEIGHT - 1 && world[p.x][p.y + 1] == Tileset.NOTHING) {
-            return true;
+        if (p.y < HEIGHT - 1 && world[p.x][p.y + 1] == tile) {
+            surrounding.add(new Position(p.x, p.y + 1));
         }
-        return false;
+        return surrounding;
     }
 
+
     public static void main(String[] args) {
-        WorldGenerator generator = new WorldGenerator(80, 30, 20170802);
+        WorldGenerator generator = new WorldGenerator(80, 30, 2000);
         TERenderer ter = new TERenderer();
+        /** Adjusted TERenderer.initialize method to leave some margins around my map. */
         ter.initialize(generator.WIDTH, generator.HEIGHT);
         TETile[][] world = generator.drawWorld();
         ter.renderFrame(world);
