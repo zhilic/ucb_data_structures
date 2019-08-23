@@ -25,9 +25,9 @@ A large design project to create an engine for generating explorable worlds, and
 	- Big Omega (satisfy lower bound)
 	- Amortized Analysis
 
-#### Disjoint Sets (Lecture 20)
+#### [Disjoint Sets](./Data_Structure_Implementation/Disjoint_Sets) (Lecture 20)
 
-|Implementation                           |Runtime<br>(M operations on N nodes)|
+|Implementation      |Runtime<br>(M operations on N nodes)|
 |:---------------------------------------:|:-------------:|
 |QuickFindDS							  |Θ(NM)    	  |
 |QuickUnionDS                             |O(MN)		  |
@@ -36,7 +36,44 @@ A large design project to create an engine for generating explorable worlds, and
 
 
 - Weighted Quick Union: Always link the root of **_smaller_** tree to **_larger_** tree.
-- Path Compression:
+- Path Compression: When we try to find the root of a specific node, tie all nodes seen to the root.
 
 #### Trees, BSTs (Lecture 21)
 
+(Definition) A **tree** consists of:
+- A set of nodes.
+- A set of edges that connect those nodes.
+	- Constraint: There is exactly one path between any two nodes.
+
+A **BST (Binary Search Tree)** is a rooted binary tree (every node has either 0, 1, or 2 children) with the BST property.
+
+**BST property**:
+
+For every node X in the tree:
+- Every key in the **left** subtree is **less** than X's key.
+- Every key in the **right** subtree is **greater** than X's key.
+
+#### Balanced BSTs (Lecture 22) Θ(log N)
+
+**Rotations** (BSTs use rotations to keep balanced)
+- RotateLeft(Node r)
+	- The root of r.right becomes the new root.
+	- The old r.right.left becomes the new r.right.
+- RotateRight(Node r)
+	- The root of r.left becomes the new root.
+	- The old r.left.right becomes the new r.left.
+
+**B-Trees** (always balanced, also called 2-3 trees or 2-3-4 trees)
+- Order M: The maximum number of non-null children per node <--> Max M-1 items per node.
+- Most popular in two specific contexts:
+	- B-Tree with small M: used as a conceptually (not practically useful) simple BST. 
+	- (More often) B-Tree with large M ('000): Used in pratice for databases and filesystems.
+
+**Red Black Tree**
+- Red-Black Invariants:
+	- Each node is red or black
+	- Root is black
+	- No 2 red nodes in a row (Red nodes can only have black children)
+	- Every root-NULL path has the same number of black nodes
+- Left-Leaning Red Black Tree<br>
+	For any 2-3 tree (which is balanced), there exists a corresponding red-black tree that has depth no more than 2 times the depth of the 2-3 tree.
